@@ -1,60 +1,100 @@
-import pygame
-import math
-import random
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Heart Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: rgb(3, 3, 10);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
 
-pygame.init()
-WIDTH, HEIGHT = 900, 900
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Python Heart")
-clock = pygame.time.Clock()
+    <canvas id="heartCanvas"></canvas>
 
-CX = WIDTH // 2
-CY = HEIGHT // 2
+    <script>
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
 
-# Kalp noktalarını oluştur
-points = []
-for i in range(500):
-    t = (2 * math.pi * i) / 500
-    x = 16 * math.sin(t) ** 3
-    y = (13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t))
-    scale = 24
-    px = CX + x * scale
-    py = CY - y * scale
-    points.append((px, py))
+        const WIDTH = 900;
+        const HEIGHT = 900;
+        canvas.width = WIDTH;
+        canvas.height = HEIGHT;
 
-running = True
-angle = 0
+        const CX = WIDTH / 2;
+        const CY = HEIGHT / 2;
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        // Kalp noktalarını oluştur
+        const points = [];
+        for (let i = 0; i < 500; i++) {
+            let t = (2 * Math.PI * i) / 500;
+            let x = 16 * Math.pow(Math.sin(t), 3);
+            let y = (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            let scale = 24;
+            let px = CX + x * scale;
+            let py = CY - y * scale;
+            points.push({ x: px, y: py });
+        }
 
-    screen.fill((3, 3, 10))
+        let angle = 0;
 
-    # Kalp çizgileri
-    for i, (x, y) in enumerate(points):
-        # Hafif dönme efekti
-        dx = x - CX
-        dy = y - CY
-        a = math.radians(angle)
-        rx = dx * math.cos(a) - dy * math.sin(a)
-        ry = dx * math.sin(a) + dy * math.cos(a)
-        end_x = CX + rx
-        end_y = CY + ry
+        function animate() {
+            // Arka planı temizle
+            ctx.fillStyle = 'rgb(3, 3, 10)';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-        # Mor -> mavi geçiş
-        color_value = int(120 + 100 * math.sin(i * 0.04 + angle * 0.03))
-        color = (80, 60, max(150, color_value))
+            let a = angle * (Math.PI / 180);
 
-        # Merkezden kalp kenarına çizgi
-        pygame.draw.line(screen, color, (CX, CY), (end_x, end_y), 1)
+            // Kalp çizgilerini çiz
+            points.forEach((point, i) => {
+                let dx = point.x - CX;
+                let dy = point.y - CY;
 
-    # Ortadaki parlak nokta
-    pygame.draw.circle(screen, (130, 180, 255), (CX, CY), 5)
+                let rx = dx * Math.cos(a) - dy * Math.sin(a);
+                let ry = dx * Math.sin(a) + dy * Math.cos(a);
 
-    pygame.display.flip()
-    angle += 0.35
-    clock.tick(60)
+                let endX = CX + rx;
+                let endY = CY + ry;
 
-pygame.quit()
+                // Mor -> mavi renk geçişi
+                let colorValue = Math.floor(120 + 100 * Math.sin(i * 0.04 + angle * 0.03));
+                let blueComponent = Math.max(150, colorValue);
+
+                ctx.strokeStyle = `rgb(80, 60, ${blueComponent})`;
+                ctx.lineWidth = 1;
+
+                ctx.beginPath();
+                ctx.moveTo(CX, CY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+            });
+
+            // Ortadaki parlak nokta
+            ctx.fillStyle = 'rgb(130, 180, 255)';
+            ctx.beginPath();
+            ctx.arc(CX, CY, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            angle += 0.35;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
